@@ -27,7 +27,8 @@ public:
       Half   = (High - Low) / 2;
       Tp     = Low + Half;
       BySl   = Low - 2 * Half;
-      SellSl = High + 2 * Half;
+      SellSl = NormalizeDouble(High + 2 * Half,1);
+      Print("++++++++++ { BySl : ", BySl, " | SellSl: ", SellSl, " } +++++++++++");
       Vl =  CalculateVolume(point);
       Print("Volume: ", Vl);
       Buy();
@@ -52,6 +53,7 @@ public:
    void              Buy()
      {
       data.BuyTicket = 0;
+      Print("=>the low is : ", data.Low);
       Ord.BuyLimit(Vl, data.Low, _Symbol, BySl, Tp);
       if(Ord.ResultRetcode() == TRADE_RETCODE_DONE)
          data.BuyTicket = Ord.ResultOrder();
@@ -59,6 +61,7 @@ public:
 
    void              Sell()
      {
+      Print("=>the high is : ", data.High);
       data.SelTicket = 0;
       Ord.SellLimit(Vl, data.High, _Symbol, SellSl, Tp);
       if(Ord.ResultRetcode() == TRADE_RETCODE_DONE)
@@ -78,29 +81,36 @@ input double TradeRisk = 2;
 
 double ValPerPnt = SymbolInfoDouble(Symbol(), SYMBOL_TRADE_CONTRACT_SIZE) * _Point;
 
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
 void OnTick()
   {
-   if(data.High != 0)
+   if(data.IsDataReady && !data.IsOrderListed)
      {
-      Order order(data.High, data.Low);
-      data.High = 0;
-      data.Ready  = true;
-     }
-   else
-      if(data.Ready && iHigh(_Symbol, PERIOD_M1, 0) >= data.High)
+      if(data.High > 0 && data.Low > 0)
         {
-         Ord.OrderDelete(data.BuyTicket);
-         data.Ready = false;
-         data.BuyTicket = 0;
+         Order order(data.High, data.Low);
+         data.IsOrderListed  = true;
         }
       else
-         if(data.Ready && iLow(_Symbol, PERIOD_M1, 0) <= data.High)
+         data.reset();
+     }
+   else
+      if(data.IsOrderListed && iHigh(_Symbol, PERIOD_M1, 0) >= data.High)
+        {
+         Print("=================================================>the order cancled ");
+         Ord.OrderDelete(data.BuyTicket);
+         data.reset();
+        }
+      else
+         if(data.IsOrderListed && iLow(_Symbol, PERIOD_M1, 0) <= data.Low)
            {
             Ord.OrderDelete(data.SelTicket);
-            data.Ready = false;
+            data.reset();
            }
   }
-  
+
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////
@@ -122,22 +132,27 @@ class Data
 public:
                      Data(void)
      {
-
-      Ready     = false;
-      SelTicket = 0;
-      BuyTicket = 0;
       IsSetHourlyTimer = false;
-      isTradeMaked = false;
-      High = 0;
-      Low = 0;
+      reset();
      }
-   bool              Ready;
+
+   void              reset()
+     {
+      IsOrderListed    = false;
+      SelTicket        = 0;
+      BuyTicket        = 0;
+      IsDataReady      = false;
+      High             = 0;
+      Low              = 0;
+     }
+
+   bool              IsOrderListed;
    ulong             SelTicket;
    ulong             BuyTicket;
    double            High;
    double            Low;
    bool              IsSetHourlyTimer;
-   bool              isTradeMaked;
+   bool              IsDataReady;
 
   };
 
@@ -149,10 +164,11 @@ void SetHourlyTimer(datetime time)
    MqlDateTime structTime;
    TimeToStruct(time, structTime); // Convert 'time' to MqlDateTime struct
 
-   int currentMinute = structTime.min;                // Get the current minute from the struct
+   int currentMinute = structTime.min;               // Get the current minute from the struct
    int secondsToNextHour = (60 - currentMinute) * 60; // Time left until the next hour
+   secondsToNextHour += 60 - structTime.sec;
 
-   EventSetTimer(secondsToNextHour); // Set the timer to trigger at the next hour
+   EventSetTimer(secondsToNextHour + 5); // Set the timer to trigger at the next hour
   }
 
 // Function to set the timer for 1-hour intervals after the initial start
@@ -203,6 +219,7 @@ bool Is1AMNewYork(datetime &time)
 
    int hour = newYorkStructTime.hour; // Extract the hour from the new time
    Print("+++++++++++ {Offset: ", offset, "} ++++++++++++\n");
+   Print("current Time : ", TimeCurrent());
    return (hour == 1); // Check if it's 1 AM in New York
   }
 
@@ -256,10 +273,10 @@ void OnTimer()
       Set1HourIntervalTimer();
       data.IsSetHourlyTimer = true;
      }
-   if(!data.isTradeMaked && Is1AMNewYork(currentTime))
+   if(!data.IsDataReady && Is1AMNewYork(currentTime))
      {
       CalculateHighLow(currentTime);
-      data.isTradeMaked = true;
+      data.IsDataReady = true;
      }
   }
 //+------------------------------------------------------------------+
