@@ -27,7 +27,8 @@ public:
       Half   = (High - Low) / 2;
       Tp     = Low + Half;
       BySl   = Low - 2 * Half;
-      SellSl = NormalizeDouble(High + 2 * Half,1);
+      SellSl = High + 2 * Half;
+      Print("tp : ", Tp, "Half :", Half, "point: ", point);
       Print("++++++++++ { BySl : ", BySl, " | SellSl: ", SellSl, " } +++++++++++");
       Vl =  CalculateVolume(point);
       Print("Volume: ", Vl);
