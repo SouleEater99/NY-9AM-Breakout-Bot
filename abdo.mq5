@@ -76,6 +76,7 @@ public:
   };
 
 ///////////////////////// input /////////////
+input group "Risk Management"
 input double TradeRisk = 2;
 ///////////////////////// global variables //
 
@@ -112,15 +113,16 @@ void OnTick()
   }
 
 /////////////////////////////////////////////////////////
+////////////         Time Management         ////////////
 /////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
-
+input group "Desired Time Zone Settings";
 input int UTCOffsetDst = -4; // User-defined UTC offset
 input int UTCOffsetNonDst = -5;
 input int DSTStartMonth = 3; // Month when DST starts (March = 3)
 input int DSTStartDay = 9;   // Day when DST starts (Second Sunday)
 input int DSTEndMonth = 11;  // Month when DST ends (November = 11)
 input int DSTEndDay = 2;     // Day when DST ends (First Sunday)
+input group "Server Time Zone";
 input int UTCServerNonDst = 0;
 input int UTCServerDst = 1;
 
