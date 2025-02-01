@@ -19,6 +19,8 @@ input int DSTEndMonth = 11;  // Month when DST ends (November = 11)
 input int DSTEndDay = 2;     // Day when DST ends (First Sunday)
 input group "Entring Time";
 input uint Initial_Time = 1;
+input uint Second_Time = 5;
+input uint Third_Time = 9;
 input group "Server Time Zone";
 input int UTCServerNonDst = 0;
 input int UTCServerDst = 1;

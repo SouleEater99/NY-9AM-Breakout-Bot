@@ -69,13 +69,16 @@ void OnTick()
 void OnTimer()
   {
 //---
+   uint  HourTime;
+   
    datetime currentTime = TimeCurrent();
    if(!data.IsSetHourlyTimer)
      {
       Set1HourIntervalTimer();
       data.IsSetHourlyTimer = true;
      }
-   if(!data.IsDataReady && IsTimeEqual(currentTime, Initial_Time))
+   HourTime = GetUtcTimeHour(currentTime);
+   if(!data.IsDataReady && (HourTime == Initial_Time || HourTime == Second_Time || HourTime == Third_Time))
      {
       CalculateHighLow(currentTime);
       MarkHighLow(currentTime);

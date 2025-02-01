@@ -54,14 +54,14 @@ bool isDstActive(datetime &time)
   }
 
 // Function to check if it's 1 AM New York time
-bool IsTimeEqual(datetime &time, uint hour)
+uint GetUtcTimeHour(datetime &time)
   {
    MqlDateTime structTime;
    TimeToStruct(time, structTime); // Convert the input 'time' to MqlDateTime struct
 
-   if (hour > 24)
-      return false;
-   int offset = isDstActive(time) ? UTCOffsetDst + (-1 * UTCServerDst) : UTCOffsetNonDst + (-1 * UTCServerNonDst); // Adjust for New York time (or user-defined UTC offset)
+   int UTCServer = (int)(TimeTradeServer() - TimeGMT()) / 3600;
+   Print("+++++++++ UTCServer : ",  UTCServer," ++++++++++++");
+   int offset = isDstActive(time) ? UTCOffsetDst + (-1 * UTCServer) : UTCOffsetNonDst + (-1 * UTCServer); // Adjust for New York time (or user-defined UTC offset)
    datetime newYorkTime = time + (offset * 3600);                                                                  // Convert to New York time
 
 // Convert the New York time to MqlDateTime struct for hour extraction
@@ -71,7 +71,7 @@ bool IsTimeEqual(datetime &time, uint hour)
    int NewYorkHour = newYorkStructTime.hour; // Extract the hour from the new time
    Print("+++++++++++ {Offset: ", offset, "} ++++++++++++\n");
    Print("current Time : ", TimeCurrent());
-   return (NewYorkHour == hour); // Check if it's 1 AM in New York
+   return (NewYorkHour); // Check if it's 1 AM in New York
   }
 
 
