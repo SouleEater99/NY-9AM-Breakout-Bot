@@ -8,6 +8,7 @@
 
 enum AllTimes
   {
+   TIME_CHECK =  100, // OFF
    TIME_00 = 0, // 00:00 (midnight)
    TIME_01 = 1, // 01:00
    TIME_02 = 2, // 02:00
