@@ -26,16 +26,23 @@ public:
       BySl     = Low - 2  * Half;
       SellSl   = High + 2 * Half;
       uint   point  = (uint)((High - Low) / _Point);
-      if(MathMax(WickHigh, WickLow) > Body)
-        {
-         Print("############### the body is less then one of the wicks #######################");
+      if (!isBodyValid())
          return;
-        }
       Print("++++++++++ { BySl : ", BySl, " | SellSl: ", SellSl," Volume: ", Vl ," } +++++++++++");
       Vl =  CalculateVolume(point);
       Buy();
       Sell();
      }
+     
+   bool isBodyValid()
+   {
+        if(MathMax(WickHigh, WickLow) > Body)
+        {
+         Print("############### the body is less then one of the wicks #######################");
+         return false;
+        }
+        return true;
+   }
    
    bool Is_Passed()
       {

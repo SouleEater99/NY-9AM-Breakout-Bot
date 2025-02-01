@@ -44,6 +44,8 @@ void OnTick()
         {
          Order order(data.High, data.Low);
          data.reset();
+         if (!order.isBodyValid())
+            return ;
          ArrayResize(orders, ArraySize(orders) + 1);
          orders[ArraySize(orders) -1] = order;
         }
