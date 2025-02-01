@@ -59,9 +59,8 @@ uint GetUtcTimeHour(datetime &time)
    MqlDateTime structTime;
    TimeToStruct(time, structTime); // Convert the input 'time' to MqlDateTime struct
 
-   int UTCServer = (int)(TimeTradeServer() - TimeGMT()) / 3600;
-   Print("+++++++++ UTCServer : ",  UTCServer," ++++++++++++");
-   int offset = isDstActive(time) ? UTCOffsetDst + (-1 * UTCServer) : UTCOffsetNonDst + (-1 * UTCServer); // Adjust for New York time (or user-defined UTC offset)
+
+   int offset = isDstActive(time) ? UTCOffsetDst + (-1 * UTCServerDst) : UTCOffsetNonDst + (-1 * UTCServerNonDst); // Adjust for New York time (or user-defined UTC offset)
    datetime newYorkTime = time + (offset * 3600);                                                                  // Convert to New York time
 
 // Convert the New York time to MqlDateTime struct for hour extraction

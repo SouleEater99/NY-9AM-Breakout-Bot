@@ -10,11 +10,8 @@
 #include "../include/TimePart.mqh"
 #include "../include/MyGlobals.mqh"
 
-
-
-
 Data data;
-
+Order orders[];
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
@@ -23,6 +20,9 @@ int OnInit()
     // Get broker server time
    datetime currentTime = TimeCurrent();
    Print(currentTime);
+   int UTCServer = (int)(TimeTradeServer() - TimeGMT()) / 3600;
+   Print("+++++++++ UTCServer : ",  UTCServer," ++++++++++++");
+
    SetHourlyTimer(currentTime);
    return (INIT_SUCCEEDED);
   }
@@ -38,30 +38,26 @@ void OnDeinit(const int reason)
 void OnTick()
   {
    
-   if(data.IsDataReady && !data.IsOrderListed)
+   if (data.IsDataReady)
      {
       if(data.High > 0 && data.Low > 0)
         {
          Order order(data.High, data.Low);
-         data.IsOrderListed  = true;
-        }
-      else
          data.reset();
+         ArrayResize(orders, ArraySize(orders) + 1);
+         orders[ArraySize(orders) -1] = order;
+        }
      }
-   else
-      if(data.IsOrderListed && iHigh(_Symbol, PERIOD_M1, 0) >= data.High)
-        {
-         Print("=================================================>the Buy order cancled ");
-         Ord.OrderDelete(data.BuyTicket);
-         data.reset();
-        }
-      else
-         if(data.IsOrderListed && iLow(_Symbol, PERIOD_M1, 0) <= data.Low)
-           {
-            Print("=================================================>the Sell order cancled ");
-            Ord.OrderDelete(data.SelTicket);
-            data.reset();
-           }
+   for (int i = 0; i < ArraySize(orders);i++)
+   {
+      if (orders[i].Is_Passed())
+      {
+         for(int j = i;j + 1 < ArraySize(orders); j++)
+            orders[j] = orders[j + 1];
+         ArrayResize(orders, ArraySize(orders) - 1);
+         i--;
+      }
+   }
   }
 //+------------------------------------------------------------------+
 //|                                                                  |
@@ -78,8 +74,9 @@ void OnTimer()
       data.IsSetHourlyTimer = true;
      }
    HourTime = GetUtcTimeHour(currentTime);
-   if(!data.IsDataReady && (HourTime == Initial_Time || HourTime == Second_Time || HourTime == Third_Time))
+   if(!data.IsDataReady && (HourTime == Initial_Time|| HourTime == Second_Time || HourTime == Third_Time))
      {
+      Print("============== I Am HEre ++++++++++++++++");
       CalculateHighLow(currentTime);
       MarkHighLow(currentTime);
       data.IsDataReady = true;

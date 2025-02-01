@@ -10,14 +10,14 @@
 
 CTrade            Ord;
 
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
 class Order
   {
 public:
-                     Order(double High, double Low)
+                     Order(){}
+                     Order(double high, double low)
      {
+     High = high;
+     Low = low;
       Body     = MathAbs(data.Close - data.Open);
       WickLow  = MathMin(data.Close, data.Open) - data.Low;
       WickHigh = data.High - MathMax(data.Close, data.Open);
@@ -28,7 +28,7 @@ public:
       uint   point  = (uint)((High - Low) / _Point);
       if(MathMax(WickHigh, WickLow) > Body)
         {
-         Print("the body is less then one of the wicks");
+         Print("############### the body is less then one of the wicks #######################");
          return;
         }
       Print("++++++++++ { BySl : ", BySl, " | SellSl: ", SellSl," Volume: ", Vl ," } +++++++++++");
@@ -36,8 +36,23 @@ public:
       Buy();
       Sell();
      }
-
-   double            CalculateVolume(uint point)
+   
+   bool Is_Passed()
+      {
+         if (iHigh(_Symbol, PERIOD_M1, 0) >= High) 
+         {
+            Ord.OrderDelete(BuyTicket);
+            return true;
+         }
+         else if (iLow(_Symbol, PERIOD_M1, 0) <= Low)
+         {
+            Ord.OrderDelete(SellTicket);
+            return true;
+         }
+         return false;
+      }
+      
+   double           CalculateVolume(uint point)
      {
       double RiskAmount = AccountInfoDouble(ACCOUNT_BALANCE) * (TradeRisk / 100);
       double Volume = NormalizeDouble(RiskAmount / (ValPerPnt * point), 2);
@@ -55,7 +70,7 @@ public:
       data.BuyTicket = 0;
       Ord.BuyLimit(Vl, data.Low, _Symbol, BySl, Tp);
       if(Ord.ResultRetcode() == TRADE_RETCODE_DONE)
-         data.BuyTicket = Ord.ResultOrder();
+         BuyTicket = Ord.ResultOrder();
      }
 
    void              Sell()
@@ -63,7 +78,7 @@ public:
       data.SelTicket = 0;
       Ord.SellLimit(Vl, data.High, _Symbol, SellSl, Tp);
       if(Ord.ResultRetcode() == TRADE_RETCODE_DONE)
-         data.SelTicket = Ord.ResultOrder();
+         SellTicket = Ord.ResultOrder();
      }
 
    double            Half;
@@ -74,13 +89,11 @@ public:
    double            Body;
    double            WickLow;
    double            WickHigh;
+   double High;
+   double Low;
+   ulong SellTicket;
+   ulong BuyTicket;
   };
 
-///////////////////////// input /////////////
 input group "Risk Management"
 input double TradeRisk = 2;
-///////////////////////// global variables //
-
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
