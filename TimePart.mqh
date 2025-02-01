@@ -54,11 +54,13 @@ bool isDstActive(datetime &time)
   }
 
 // Function to check if it's 1 AM New York time
-bool Is1AMNewYork(datetime &time)
+bool IsTimeEqual(datetime &time, uint hour)
   {
    MqlDateTime structTime;
    TimeToStruct(time, structTime); // Convert the input 'time' to MqlDateTime struct
 
+   if (hour > 24)
+      return false;
    int offset = isDstActive(time) ? UTCOffsetDst + (-1 * UTCServerDst) : UTCOffsetNonDst + (-1 * UTCServerNonDst); // Adjust for New York time (or user-defined UTC offset)
    datetime newYorkTime = time + (offset * 3600);                                                                  // Convert to New York time
 
@@ -66,10 +68,10 @@ bool Is1AMNewYork(datetime &time)
    MqlDateTime newYorkStructTime;
    TimeToStruct(newYorkTime, newYorkStructTime);
 
-   int hour = newYorkStructTime.hour; // Extract the hour from the new time
+   int NewYorkHour = newYorkStructTime.hour; // Extract the hour from the new time
    Print("+++++++++++ {Offset: ", offset, "} ++++++++++++\n");
    Print("current Time : ", TimeCurrent());
-   return (hour == 1); // Check if it's 1 AM in New York
+   return (NewYorkHour == hour); // Check if it's 1 AM in New York
   }
 
 

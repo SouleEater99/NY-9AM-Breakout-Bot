@@ -75,7 +75,7 @@ void OnTimer()
       Set1HourIntervalTimer();
       data.IsSetHourlyTimer = true;
      }
-   if(!data.IsDataReady && Is1AMNewYork(currentTime))
+   if(!data.IsDataReady && IsTimeEqual(currentTime, Initial_Time))
      {
       CalculateHighLow(currentTime);
       MarkHighLow(currentTime);
