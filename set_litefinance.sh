@@ -1,8 +1,5 @@
 #! /bin/bash
 
-cp -r ./*mqh    ~/.wine/drive_c/Program\ Files/MetaTrader\ 5\ EXNESS/MQL5/Include
-cp -r ./*mq5    ~/.wine/drive_c/Program\ Files/MetaTrader\ 5\ EXNESS/MQL5/Experts
-
 cp -r ./*mqh    ~/.wine/drive_c/Program\ Files/LiteFinance\ MT5\ Terminal/MQL5/Include
 cp -r ./*mqh    ~/.wine/drive_c/Program\ Files/LiteFinance\ MT5\ Terminal/MQL5/Experts
 
