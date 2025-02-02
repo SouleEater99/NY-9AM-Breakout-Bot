@@ -12,11 +12,12 @@
 
 Data data;
 Order orders[];
-//+------------------------------------------------------------------+
-//| Expert initialization function                                   |
-//+------------------------------------------------------------------+
+double InitMonthBalance = AccountInfoDouble(ACCOUNT_BALANCE);
+string LastMonth = StringSubstr(TimeToString(TimeCurrent()),0,7);
+
 int OnInit()
   {
+   DrawMonthlyBalance();
     // Get broker server time
    datetime currentTime = TimeCurrent();
    Print(currentTime);
@@ -26,9 +27,7 @@ int OnInit()
    SetHourlyTimer(currentTime);
    return (INIT_SUCCEEDED);
   }
-//+------------------------------------------------------------------+
-//| Expert deinitialization function                                 |
-//+------------------------------------------------------------------+
+  
 void OnDeinit(const int reason)
   {
 //--- destroy timer
@@ -37,18 +36,15 @@ void OnDeinit(const int reason)
 
 void OnTick()
   {
-   
    if (data.IsDataReady)
      {
       if(data.High > 0 && data.Low > 0)
         {
          Order order(data.High, data.Low);
-         data.reset();
-         if (!order.isBodyValid())
-            return ;
          ArrayResize(orders, ArraySize(orders) + 1);
-         orders[ArraySize(orders) -1] = order;
+         orders[ArraySize(orders) - 1] = order;
         }
+       data.reset();
      }
    for (int i = 0; i < ArraySize(orders);i++)
    {
@@ -61,22 +57,36 @@ void OnTick()
       }
    }
   }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
+  
+  bool IsPermitedToEnter(datetime &currentTime) //check is all good to enter
+  {
+   uint  HourTime = GetUtcTimeHour(currentTime);
+   double Balanace = AccountInfoDouble(ACCOUNT_BALANCE);
+   double Diff = Balanace - InitMonthBalance;
+   bool IsTheHour = HourTime == Initial_Time|| HourTime == Second_Time || HourTime == Third_Time; // is one of the hours to enter
+   bool IsWithinLimits =  Diff <= InitMonthBalance * MonthTarget / 100 && -Diff <= InitMonthBalance * MonthLost / 100; // in lost<x<profit
+   
+   return (!data.IsDataReady && IsTheHour && IsWithinLimits);
+  }
+  
 void OnTimer()
   {
 //---
-   uint  HourTime;
    
    datetime currentTime = TimeCurrent();
-   if(!data.IsSetHourlyTimer)
+   if(!data.IsSetHourlyTimer) // adjust the ontime function to be called exactly every hours in hour:00:03
      {
       Set1HourIntervalTimer();
       data.IsSetHourlyTimer = true;
      }
-   HourTime = GetUtcTimeHour(currentTime);
-   if(!data.IsDataReady && (HourTime == Initial_Time|| HourTime == Second_Time || HourTime == Third_Time))
+   string CurrentMonth = StringSubstr(TimeToString(TimeCurrent()), 0, 7);
+   if (CurrentMonth != LastMonth) // check if we still in the same month
+   {
+      InitMonthBalance = AccountInfoDouble(ACCOUNT_BALANCE);
+      LastMonth = CurrentMonth;
+      DrawMonthlyBalance();
+   }
+   if(IsPermitedToEnter(currentTime))
      {
       Print("============== I Am HEre ++++++++++++++++");
       CalculateHighLow(currentTime);
@@ -84,4 +94,3 @@ void OnTimer()
       data.IsDataReady = true;
      }
   }
-//+------------------------------------------------------------------+

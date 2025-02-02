@@ -102,5 +102,21 @@ public:
    ulong BuyTicket;
   };
 
-input group "Risk Management"
+input group "Risk Management in % of the balance"
 input double TradeRisk = 2;
+input double MonthTarget = 2;
+input double MonthLost = 2;
+
+void DrawMonthlyBalance()
+{
+    string label_name = "MonthlyBalance";
+    double balance = AccountInfoDouble(ACCOUNT_BALANCE);
+    // Create the text object
+    ObjectCreate(0, label_name, OBJ_TEXT, 0, TimeCurrent(), iHigh(_Symbol, PERIOD_H1, 1));
+
+    // Set the properties
+    ObjectSetString(0, label_name, OBJPROP_TEXT, "Balance: " + DoubleToString(balance, 2));
+    ObjectSetInteger(0, label_name, OBJPROP_COLOR, clrWhite);  // Text color
+    ObjectSetInteger(0, label_name, OBJPROP_FONTSIZE, 12);     // Font size
+    ObjectSetInteger(0, label_name, OBJPROP_HIDDEN, false);    // Ensure visibility
+}
