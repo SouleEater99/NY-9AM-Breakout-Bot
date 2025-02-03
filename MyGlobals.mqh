@@ -80,8 +80,8 @@ input AllTimes Initial_Time = TIME_01;
 input AllTimes Second_Time = TIME_05;
 input AllTimes Third_Time = TIME_09;
 input group "Server Time Zone";
-input GMT_Options UTCServerNonDst = GMT_0;
 input GMT_Options UTCServerDst = GMT_Plus_1;
+input GMT_Options UTCServerNonDst = GMT_0;
 
 
 class Data

@@ -13,12 +13,20 @@
 Data data;
 Order orders[];
 double InitMonthBalance = AccountInfoDouble(ACCOUNT_BALANCE);
-string LastMonth = StringSubstr(TimeToString(TimeCurrent()),0,7);
+string LastMonth = StringSubstr(TimeToString(TimeCurrent()), 0, 7);
+
 
 int OnInit()
   {
-   DrawMonthlyBalance();
-    // Get broker server time
+   char result[];
+   char headers[];
+   string response;
+   int timeout = 5000;
+   
+   int res = WebRequest("GET", "http://127.0.0.1:8000/", "", timeout, headers, result, response); 
+   if (res == -1)
+      Print("error", GetLastError());
+      
    datetime currentTime = TimeCurrent();
    Print(currentTime);
    int UTCServer = (int)(TimeTradeServer() - TimeGMT()) / 3600;
@@ -71,8 +79,6 @@ void OnTick()
   
 void OnTimer()
   {
-//---
-   
    datetime currentTime = TimeCurrent();
    if(!data.IsSetHourlyTimer) // adjust the ontime function to be called exactly every hours in hour:00:03
      {

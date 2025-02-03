@@ -46,13 +46,15 @@ public:
    
    bool Is_Passed()
       {
-         if (iHigh(_Symbol, PERIOD_M1, 0) >= High) 
+         if (SymbolInfoDouble(Symbol(), SYMBOL_BID) >= High)
          {
+            Print("bid:", SymbolInfoDouble(Symbol(), SYMBOL_BID));
             Ord.OrderDelete(BuyTicket);
             return true;
          }
-         else if (iLow(_Symbol, PERIOD_M1, 0) <= Low)
+         else if (SymbolInfoDouble(Symbol(), SYMBOL_ASK) <= Low)
          {
+            Print("ask:", SymbolInfoDouble(Symbol(), SYMBOL_ASK));
             Ord.OrderDelete(SellTicket);
             return true;
          }
