@@ -16,24 +16,25 @@ double InitMonthBalance = AccountInfoDouble(ACCOUNT_BALANCE);
 string LastMonth = StringSubstr(TimeToString(TimeCurrent()), 0, 7);
 
 
+
 int OnInit()
   {
-   char result[];
-   char headers[];
-   string response;
-   int timeout = 5000;
+   if (MQLInfoInteger(MQL_TESTER)) 
+   {
    
-   int res = WebRequest("GET", "http://127.0.0.1:8000/", "", timeout, headers, result, response); 
-   if (res == -1)
-      Print("error", GetLastError());
-      
+   // Get broker server time
    datetime currentTime = TimeCurrent();
    Print(currentTime);
    int UTCServer = (int)(TimeTradeServer() - TimeGMT()) / 3600;
    Print("+++++++++ UTCServer : ",  UTCServer," ++++++++++++");
 
    SetHourlyTimer(currentTime);
+   
    return (INIT_SUCCEEDED);
+   }
+   Print(" YOU NEED TO PURCHASE YOUR EXPERT FIRST :) ");
+   return INIT_FAILED;
+   
   }
   
 void OnDeinit(const int reason)
