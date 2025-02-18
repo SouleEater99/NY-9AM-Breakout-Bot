@@ -1,4 +1,4 @@
-# NY-9AM-Breakout-Bot
+# NY-9AM-Breakout-Bot 
 
 NY-9AM-Breakout-Bot is an advanced MQL5 trading bot designed to execute a breakout strategy on a 4-hour timeframe. By default, it uses New York time (9 AM) for trade execution, making it ideal for capturing opportunities that often coincide with key market news releases. The bot is highly effective when used alongside news trading strategies, and it adjusts dynamically for time zone differences and DST changes.
 
